@@ -1,0 +1,60 @@
+from django.shortcuts import render
+from django import forms
+
+# Define a form to get income input
+class TaxForm(forms.Form):
+    income = forms.IntegerField(label='Enter your income:', min_value=0)
+
+# Tax calculation functions
+def new_tax(income):
+    n = 400000
+    if income <= 1200000:
+        tax = 0
+    elif income <= 1600000:
+        tax = (n * 0.05) + (n * 0.1) + (income - 1200000) * 0.15
+    elif income <= 2000000:
+        tax = (n * 0.05) + (n * 0.1) + (n * 0.15) + (income - 1600000) * 0.2
+    elif income <= 2400000:
+        tax = (n * 0.05) + (n * 0.1) + (n * 0.15) + (n * 0.2) + (income - 2000000) * 0.25
+    else:
+        tax = (n * 0.05) + (n * 0.1) + (n * 0.15) + (n * 0.2) + (n * 0.25) + (income - 2400000) * 0.3
+
+    effect = (tax / income * 100) if income > 0 else 0
+    return tax, effect
+
+def old_tax(income):
+    n = 300000
+    if income <= 700000:
+        tax = 0
+    elif income <= 900000:
+        tax = (n * 0.05) + (income - 600000) * 0.1
+    elif income <= 1200000:
+        tax = (n * 0.05) + (n * 0.1) + (income - 900000) * 0.15
+    elif income <= 1500000:
+        tax = (n * 0.05) + (n * 0.1) + (n * 0.15) + (income - 1200000) * 0.2
+    else:
+        tax = (n * 0.05) + (n * 0.1) + (n * 0.15) + (n * 0.2) + (income - 1500000) * 0.3
+
+    effect = (tax / income * 100) if income > 0 else 0
+    return tax, effect
+
+# Django view to handle form submission
+def tax_view(request):
+    result = None
+    if request.method == 'POST':
+        form = TaxForm(request.POST)
+        if form.is_valid():
+            income = form.cleaned_data['income']
+            tax_new, effect_new = new_tax(income)
+            tax_old, effect_old = old_tax(income)
+            result = {
+                'income': income,
+                'new_tax': tax_new,
+                'new_effect': effect_new,
+                'old_tax': tax_old,
+                'old_effect': effect_old,
+            }
+    else:
+        form = TaxForm()
+
+    return render(request, 'tax_calculator.html', {'form': form, 'result': result})

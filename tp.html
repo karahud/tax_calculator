@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tax Calculator</title>
+</head>
+<body>
+    <h2>Tax Calculator</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Calculate</button>
+    </form>
+
+    {% if result %}
+        <h3>Results:</h3>
+        <p>Income: {{ result.income }}</p>
+        <p>New Tax: {{ result.new_tax }}</p>
+        <p>New Effective Tax Rate: {{ result.new_effect }}%</p>
+        <p>Old Tax: {{ result.old_tax }}</p>
+        <p>Old Effective Tax Rate: {{ result.old_effect }}%</p>
+    {% endif %}
+</body>
+</html>
