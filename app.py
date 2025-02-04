@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home4.html')
 
 def new_tax(income):
     n = 400000
@@ -42,17 +42,20 @@ def old_tax(income):
 def calculate_tax():
     try:
         income = int(request.args.get('income'))
-        regime = request.args.get('regime', 'new')
 
-        if regime == 'old':
-            tax, effect = old_tax(income)
-        else:
-            tax, effect = new_tax(income)
+        new_tax_value, new_effect = new_tax(income)
+        old_tax_value, old_effect = old_tax(income)
 
         return jsonify({
             "income": income,
-            "tax_payable": round(tax, 2),
-            "effective_tax_rate": round(effect, 2)
+            "new_regime": {
+                "tax_payable": round(new_tax_value, 2),
+                "effective_tax_rate": round(new_effect, 2)
+            },
+            "old_regime": {
+                "tax_payable": round(old_tax_value, 2),
+                "effective_tax_rate": round(old_effect, 2)
+            }
         })
     except (TypeError, ValueError):
         return jsonify({"error": "Invalid input. Please provide a valid income."}), 400
